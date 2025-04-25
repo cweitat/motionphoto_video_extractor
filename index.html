@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Motion Photo Extractor</title>
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Roboto Font -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6200ee;
+            --primary-dark: #3700b3;
+            --primary-light: #bb86fc;
+            --secondary: #03dac6;
+            --secondary-dark: #018786;
+            --background: #ffffff;
+            --surface: #ffffff;
+            --error: #b00020;
+            --on-primary: #ffffff;
+            --on-secondary: #000000;
+            --on-background: #000000;
+            --on-surface: #000000;
+            --on-error: #ffffff;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: var(--on-background);
+            line-height: 1.5;
+        }
+        
+        .app-bar {
+            background-color: var(--primary);
+            color: var(--on-primary);
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+        }
+        
+        .app-bar h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 500;
+        }
+        
+        .app-bar .material-icons {
+            margin-right: 16px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .card {
+            background-color: var(--surface);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: var(--on-surface);
+        }
+        
+        .btn {
+            background-color: var(--primary);
+            color: var(--on-primary);
+            border: none;
+            padding: 0 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1.25px;
+            height: 36px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+            margin: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .btn:disabled {
+            background-color: rgba(0, 0, 0, 0.12);
+            color: rgba(0, 0, 0, 0.38);
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        
+        .btn .material-icons {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+        
+        .file-input-container {
+            margin: 16px 0;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .custom-file-upload {
+            border: 2px dashed #ccc;
+            display: inline-block;
+            padding: 24px;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            background-color: #fafafa;
+            transition: all 0.3s;
+        }
+        
+        .custom-file-upload:hover, .custom-file-upload.highlight {
+            border-color: var(--primary);
+            background-color: rgba(98, 0, 238, 0.05);
+        }
+        
+        .status {
+            padding: 16px;
+            border-radius: 4px;
+            margin: 16px 0;
+            display: none;
+        }
+        
+        .status-info {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+        
+        .status-success {
+            background-color: #e8f5e9;
+            color: #1b5e20;
+        }
+        
+        .status-error {
+            background-color: #ffebee;
+            color: #b71c1c;
+        }
+        
+        #videoContainer {
+            margin-top: 16px;
+            display: none;
+        }
+        
+        video {
+            width: 100%;
+            border-radius: 4px;
+            max-height: 400px;
+            background-color: #000;
+        }
+        
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 16px;
+            margin-top: 32px;
+            color: rgba(0, 0, 0, 0.6);
+            font-size: 12px;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-bar">
+        <i class="material-icons">movie</i>
+        <h1>Simple Motion Photo Extractor</h1>
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <div class="card-title">Upload a Motion Photo</div>
+            <p>Select a Motion Photo from your Google Pixel or Samsung device to extract the embedded video.</p>
+            
+            <div class="file-input-container">
+                <div id="dropArea" class="custom-file-upload">
+                    <i class="material-icons" style="font-size: 36px; margin-bottom: 8px;">add_photo_alternate</i>
+                    <div>Drag & drop a Motion Photo file here or click to select</div>
+                    <input type="file" id="fileInput" accept=".jpg,.jpeg" style="display: none;">
+                </div>
+            </div>
+            
+            <div id="status" class="status"></div>
+            
+            <div class="button-container">
+                <button id="extractBtn" class="btn" disabled>
+                    <i class="material-icons">movie</i>
+                    Extract Video
+                </button>
+                <button id="downloadBtn" class="btn" disabled>
+                    <i class="material-icons">download</i>
+                    Download Video
+                </button>
+            </div>
+        </div>
+        
+        <div id="videoContainer" class="card">
+            <div class="card-title">Extracted Video</div>
+            <video id="videoPreview" controls></video>
+        </div>
+    </div>
+    
+    <footer>
+        This tool processes files locally in your browser. No data is sent to any server.
+    </footer>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const extractBtn = document.getElementById('extractBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const status = document.getElementById('status');
+        const videoContainer = document.getElementById('videoContainer');
+        const videoPreview = document.getElementById('videoPreview');
+        const dropArea = document.getElementById('dropArea');
+        
+        let extractedVideoBlob = null;
+        let originalFileName = '';
+        
+        // Handle click on drop area to open file dialog
+        dropArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        // Handle file selection via input
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+        
+        // Handle drag and drop events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropArea.classList.add('highlight');
+        }
+        
+        function unhighlight() {
+            dropArea.classList.remove('highlight');
+        }
+        
+        // Handle file drop
+        dropArea.addEventListener('drop', function(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        });
+        
+        // Process files whether from drag-drop or file input
+        function handleFiles(files) {
+            if (!files || files.length === 0) {
+                return;
+            }
+            
+            const file = files[0];
+            originalFileName = file.name;
+            
+            if (!file.type.includes('image/jpeg') && !file.type.includes('image/jpg')) {
+                showStatus('Please select a JPEG file', 'error');
+                return;
+            }
+            
+            showStatus(`File selected: ${file.name} (${formatSize(file.size)})`, 'info');
+            extractBtn.disabled = false;
+        }
+        
+        extractBtn.addEventListener('click', function() {
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showStatus('Please select a file first', 'error');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            extractVideo(file);
+        });
+        
+        downloadBtn.addEventListener('click', function() {
+            if (!extractedVideoBlob) {
+                showStatus('No video extracted yet', 'error');
+                return;
+            }
+            
+            // Create file name from original
+            let fileName = originalFileName.replace(/\.[^/.]+$/, "") + "_video.mp4";
+            
+            // Create download link
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(extractedVideoBlob);
+            a.download = fileName;
+            a.click();
+            
+            showStatus('Video downloaded successfully!', 'success');
+        });
+        
+        async function extractVideo(file) {
+            showStatus('Reading file...', 'info');
+            
+            try {
+                const buffer = await readFileAsArrayBuffer(file);
+                const data = new Uint8Array(buffer);
+                
+                showStatus('Searching for video data...', 'info');
+                
+                // Simple approach: find MP4 header (ftyp)
+                const mp4Signature = [0x66, 0x74, 0x79, 0x70]; // "ftyp"
+                let videoOffset = -1;
+                
+                // Search for MP4 signature
+                for (let i = 0; i < data.length - 4; i++) {
+                    if (data[i] === mp4Signature[0] && 
+                        data[i+1] === mp4Signature[1] && 
+                        data[i+2] === mp4Signature[2] && 
+                        data[i+3] === mp4Signature[3]) {
+                        
+                        // Found "ftyp" - now check if it's a proper MP4 header
+                        // It should typically have a 4-byte size before it
+                        if (i >= 4) {
+                            // This might be our video start
+                            videoOffset = i - 4; // Include the 4 bytes before "ftyp"
+                            break;
+                        } else {
+                            videoOffset = i;
+                            break;
+                        }
+                    }
+                }
+                
+                // If we didn't find a standard signature, try alternative approach
+                if (videoOffset === -1) {
+                    // Look for "MotionPhoto_Data" marker
+                    const motionMarker = stringToByteArray("MotionPhoto_Data");
+                    for (let i = 0; i < data.length - motionMarker.length; i++) {
+                        let found = true;
+                        for (let j = 0; j < motionMarker.length; j++) {
+                            if (data[i + j] !== motionMarker[j]) {
+                                found = false;
+                                break;
+                            }
+                        }
+                        
+                        if (found) {
+                            // Found the marker, now read the size
+                            const markerPos = i + motionMarker.length;
+                            
+                            // Skip possible spaces
+                            let offsetPos = markerPos;
+                            while (offsetPos < data.length && (data[offsetPos] === 32 || data[offsetPos] === 9)) {
+                                offsetPos++;
+                            }
+                            
+                            if (offsetPos + 4 <= data.length) {
+                                const size = (data[offsetPos] << 24) | 
+                                           (data[offsetPos+1] << 16) | 
+                                           (data[offsetPos+2] << 8) | 
+                                            data[offsetPos+3];
+                                
+                                if (size > 0 && size < data.length) {
+                                    videoOffset = data.length - size;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                if (videoOffset === -1) {
+                    showStatus('Could not find video data in this file. It may not be a Motion Photo.', 'error');
+                    return;
+                }
+                
+                // Extract the video data
+                showStatus('Found video data at offset: ' + videoOffset, 'info');
+                const videoData = data.slice(videoOffset);
+                
+                // Create a blob from the video data
+                extractedVideoBlob = new Blob([videoData], { type: 'video/mp4' });
+                
+                // Show the video
+                videoPreview.src = URL.createObjectURL(extractedVideoBlob);
+                videoContainer.style.display = 'block';
+                
+                // Enable download button
+                downloadBtn.disabled = false;
+                
+                showStatus('Video extracted successfully! Size: ' + formatSize(extractedVideoBlob.size), 'success');
+            } catch (error) {
+                console.error(error);
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+        
+        function readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error('Failed to read file'));
+                reader.readAsArrayBuffer(file);
+            });
+        }
+        
+        function stringToByteArray(str) {
+            const bytes = [];
+            for (let i = 0; i < str.length; i++) {
+                bytes.push(str.charCodeAt(i));
+            }
+            return bytes;
+        }
+        
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.style.display = 'block';
+            
+            // Remove all status classes
+            status.classList.remove('status-success', 'status-error', 'status-info');
+            
+            // Add the appropriate class
+            status.classList.add(`status-${type}`);
+        }
+        
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
