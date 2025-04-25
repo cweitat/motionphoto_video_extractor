@@ -290,6 +290,8 @@
             handleFiles(files);
         });
         
+        let selectedFile = null;
+
         // Process files whether from drag-drop or file input
         function handleFiles(files) {
             if (!files || files.length === 0) {
@@ -304,18 +306,20 @@
                 return;
             }
             
+            // Store the selected file for later use with the extract button
+            selectedFile = file;
+            
             showStatus(`File selected: ${file.name} (${formatSize(file.size)})`, 'info');
             extractBtn.disabled = false;
         }
         
         extractBtn.addEventListener('click', function() {
-            if (!fileInput.files || fileInput.files.length === 0) {
+            if (!selectedFile) {
                 showStatus('Please select a file first', 'error');
                 return;
             }
             
-            const file = fileInput.files[0];
-            extractVideo(file);
+            extractVideo(selectedFile);
         });
         
         downloadBtn.addEventListener('click', function() {
